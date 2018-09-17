@@ -324,6 +324,7 @@ jsdomDescribe('vdom', () => {
 					return v('div', { onclick: this.properties.onClick });
 				}
 			}
+
 			class App extends WidgetBase {
 				public onClickCount = 0;
 
@@ -365,6 +366,7 @@ jsdomDescribe('vdom', () => {
 					return v('h1', [this.properties.text]);
 				}
 			}
+
 			class Bar extends WidgetBase<any> {
 				render() {
 					return v('h2', [this.properties.text]);
@@ -373,6 +375,7 @@ jsdomDescribe('vdom', () => {
 
 			baseRegistry.define('foo', Foo);
 			baseRegistry.define('bar', Bar);
+
 			class Baz extends WidgetBase {
 				render() {
 					return v('div', [w<Foo>('foo', { text: 'foo' }), w<Bar>('bar', { text: 'bar' })]);
@@ -394,27 +397,32 @@ jsdomDescribe('vdom', () => {
 		it('registry items', () => {
 			let resolver = () => {};
 			const baseRegistry = new Registry();
+
 			class Widget extends WidgetBase {
 				render() {
 					return v('div', ['Hello, world!']);
 				}
 			}
+
 			class RegistryWidget extends WidgetBase {
 				render() {
 					return v('div', ['Registry, world!']);
 				}
 			}
+
 			const promise = new Promise<any>((resolve) => {
 				resolver = () => {
 					resolve(RegistryWidget);
 				};
 			});
 			baseRegistry.define('registry-item', promise);
+
 			class App extends WidgetBase {
 				render() {
 					return [w('registry-item', {}), w(Widget, {})];
 				}
 			}
+
 			const widget = new App();
 			widget.__setCoreProperties__({ bind: widget, baseRegistry });
 			const projection = dom.create(widget, { sync: true });
@@ -436,14 +444,17 @@ jsdomDescribe('vdom', () => {
 				render() {
 					return v('h1', [this.properties.text]);
 				}
+
 				invalidate() {
 					super.invalidate();
 				}
 			}
+
 			class Bar extends WidgetBase<any> {
 				render() {
 					return v('h2', [this.properties.text]);
 				}
+
 				invalidate() {
 					super.invalidate();
 				}
@@ -453,6 +464,7 @@ jsdomDescribe('vdom', () => {
 				render() {
 					return v('div', [w<Foo>('foo', { text: 'foo' }), w<Bar>('bar', { text: 'bar' })]);
 				}
+
 				invalidate() {
 					super.invalidate();
 				}
@@ -547,6 +559,7 @@ jsdomDescribe('vdom', () => {
 
 		it('supports null return from render and subsequent return on re-render', () => {
 			let fooInvalidate: any;
+
 			class Foo extends WidgetBase<any> {
 				private myClass = false;
 
@@ -660,6 +673,7 @@ jsdomDescribe('vdom', () => {
 		it('should only insert before nodes that are not orphaned', () => {
 			class Parent extends WidgetBase {
 				private items: DNode[] = [w(ChildOne, {}), w(ChildTwo, {})];
+
 				render() {
 					return v('div', this.items);
 				}
@@ -671,6 +685,7 @@ jsdomDescribe('vdom', () => {
 			}
 
 			let hideOne: Function;
+
 			class ChildOne extends WidgetBase {
 				private _show = true;
 
@@ -690,6 +705,7 @@ jsdomDescribe('vdom', () => {
 			}
 
 			let hideTwo: Function;
+
 			class ChildTwo extends WidgetBase {
 				private _show = true;
 
@@ -737,12 +753,15 @@ jsdomDescribe('vdom', () => {
 			}
 
 			let parentInvalidate: any;
+
 			class Parent extends WidgetBase {
 				private items: DNode[] = [w(ChildOne, { key: '1' }), w(ChildOne, { key: '2' })];
+
 				constructor() {
 					super();
 					parentInvalidate = this.swap.bind(this);
 				}
+
 				render() {
 					return this.items;
 				}
@@ -754,6 +773,7 @@ jsdomDescribe('vdom', () => {
 			}
 
 			let hide = false;
+
 			class ChildOne extends WidgetBase {
 				render() {
 					return w(ChildTwo, {});
@@ -761,11 +781,13 @@ jsdomDescribe('vdom', () => {
 			}
 
 			let invalidateTwo: any;
+
 			class ChildTwo extends WidgetBase {
 				constructor() {
 					super();
 					invalidateTwo = this.invalidate.bind(this);
 				}
+
 				render() {
 					return hide ? null : v('div', ['Two']);
 				}
@@ -796,6 +818,7 @@ jsdomDescribe('vdom', () => {
 
 			let childTwoInvalidate: Function;
 			let renderResult: DNode = null;
+
 			class ChildTwo extends WidgetBase {
 				constructor() {
 					super();
@@ -809,6 +832,7 @@ jsdomDescribe('vdom', () => {
 
 			class Parent extends WidgetBase {
 				private _items: any[] = [w(ChildTwo, {})];
+
 				render() {
 					return v('main', this._items);
 				}
@@ -885,6 +909,7 @@ jsdomDescribe('vdom', () => {
 
 		it('should find node in array of siblings', () => {
 			let expand: any;
+
 			class Foo extends WidgetBase<any> {
 				private _expand = false;
 
@@ -941,13 +966,16 @@ jsdomDescribe('vdom', () => {
 					return v('div', [v('div', { key: '3' }, ['one']), v('div', { key: '3' }, ['two']), w(Bar, {})]);
 				}
 			}
+
 			let showBar = false;
 			let invalidateBar: any;
+
 			class Bar extends WidgetBase {
 				constructor() {
 					super();
 					invalidateBar = this.invalidate.bind(this);
 				}
+
 				render() {
 					return showBar ? [v('div', { key: '3' }, ['three']), w(Qux, {})] : null;
 				}
@@ -955,11 +983,13 @@ jsdomDescribe('vdom', () => {
 
 			let showQux = false;
 			let invalidateQux: any;
+
 			class Qux extends WidgetBase {
 				constructor() {
 					super();
 					invalidateQux = this.invalidate.bind(this);
 				}
+
 				render() {
 					return showQux ? v('div', { key: '3' }, ['four']) : null;
 				}
@@ -986,13 +1016,16 @@ jsdomDescribe('vdom', () => {
 					return v('div', [v('div', { key: '1' }, ['one']), v('div', { key: '2' }, ['two']), w(Bar, {})]);
 				}
 			}
+
 			let showBar = false;
 			let invalidateBar: any;
+
 			class Bar extends WidgetBase {
 				constructor() {
 					super();
 					invalidateBar = this.invalidate.bind(this);
 				}
+
 				render() {
 					return showBar ? [w(Qux, {}), v('div', { key: '3' }, ['three'])] : null;
 				}
@@ -1000,11 +1033,13 @@ jsdomDescribe('vdom', () => {
 
 			let showQux = false;
 			let invalidateQux: any;
+
 			class Qux extends WidgetBase {
 				constructor() {
 					super();
 					invalidateQux = this.invalidate.bind(this);
 				}
+
 				render() {
 					return showQux ? v('div', { key: '4' }, ['four']) : null;
 				}
@@ -1031,13 +1066,16 @@ jsdomDescribe('vdom', () => {
 					return v('div', [v('div', { key: '1' }, ['one']), v('div', { key: '2' }, ['two']), w(Bar, {})]);
 				}
 			}
+
 			let showBar = false;
 			let invalidateBar: any;
+
 			class Bar extends WidgetBase {
 				constructor() {
 					super();
 					invalidateBar = this.invalidate.bind(this);
 				}
+
 				render() {
 					return showBar
 						? [v('div', { key: '3' }, ['three']), w(Qux, {}), v('div', { key: '5' }, ['five'])]
@@ -1047,11 +1085,13 @@ jsdomDescribe('vdom', () => {
 
 			let showQux = false;
 			let invalidateQux: any;
+
 			class Qux extends WidgetBase {
 				constructor() {
 					super();
 					invalidateQux = this.invalidate.bind(this);
 				}
+
 				render() {
 					return showQux ? v('div', { key: '4' }, ['four']) : null;
 				}
@@ -1079,6 +1119,7 @@ jsdomDescribe('vdom', () => {
 
 		it('Should only try to insert before nodes that share the same parent', () => {
 			let invalidate: any;
+
 			class Foo extends WidgetBase {
 				private _show = false;
 
@@ -1121,6 +1162,7 @@ jsdomDescribe('vdom', () => {
 		it('should update an array of nodes to single node', () => {
 			class Foo extends WidgetBase {
 				private _array = false;
+
 				render() {
 					this._array = !this._array;
 					return this._array
@@ -1300,6 +1342,7 @@ jsdomDescribe('vdom', () => {
 		it('removes existing widget and uses new widget when widget changes', () => {
 			let fooCreated = false;
 			let barCreatedCount = 0;
+
 			class Foo extends WidgetBase {
 				constructor() {
 					super();
@@ -1350,11 +1393,13 @@ jsdomDescribe('vdom', () => {
 
 		it('calls onAttach when widget is rendered', () => {
 			let onAttachCallCount = 0;
+
 			class Foo extends WidgetBase {
 				onAttach() {
 					onAttachCallCount++;
 				}
 			}
+
 			const widget = new Foo();
 			dom.create(widget);
 			resolvers.resolve();
@@ -1431,6 +1476,7 @@ jsdomDescribe('vdom', () => {
 					]);
 				}
 			}
+
 			const widget = new Baz();
 			dom.create(widget);
 			resolvers.resolve();
@@ -1476,6 +1522,7 @@ jsdomDescribe('vdom', () => {
 
 		it('should use the latest version of nodes when calling remove', () => {
 			let showFooNodes: any;
+
 			class Baz extends WidgetBase {
 				render() {
 					return ['one', 'two'];
@@ -1494,10 +1541,12 @@ jsdomDescribe('vdom', () => {
 					this._show = !this._show;
 					this.invalidate();
 				};
+
 				constructor() {
 					super();
 					showFooNodes = this._toggleShow;
 				}
+
 				render() {
 					if (this._show) {
 						return w(Baz, {});
@@ -1512,6 +1561,7 @@ jsdomDescribe('vdom', () => {
 					this._show = !this._show;
 					this.invalidate();
 				};
+
 				render() {
 					return v('div', [this._show ? w(Qux, {}) : null, this._show ? null : 'three']);
 				}
@@ -1764,6 +1814,7 @@ jsdomDescribe('vdom', () => {
 						return w(Foo, {});
 					}
 				}
+
 				const widget = new Bar();
 				dom.merge(root, widget, { sync: true });
 				assert.strictEqual(root.className, 'foo bar', 'should have added bar class');
@@ -1815,6 +1866,7 @@ jsdomDescribe('vdom', () => {
 						];
 					}
 				}
+
 				class Foo extends WidgetBase {
 					render() {
 						return v(
@@ -1850,11 +1902,13 @@ jsdomDescribe('vdom', () => {
 						);
 					}
 				}
+
 				class Bar extends WidgetBase {
 					render() {
 						return w(Foo, {});
 					}
 				}
+
 				const widget = new Bar();
 				dom.merge(root, widget, { sync: true });
 				assert.strictEqual(root.className, 'foo bar', 'should have added bar class');
@@ -1918,6 +1972,7 @@ jsdomDescribe('vdom', () => {
 						];
 					}
 				}
+
 				class Foo extends WidgetBase {
 					render() {
 						return v(
@@ -1953,11 +2008,13 @@ jsdomDescribe('vdom', () => {
 						);
 					}
 				}
+
 				class Bar extends WidgetBase {
 					render() {
 						return w(Foo, {});
 					}
 				}
+
 				const widget = new Bar();
 				dom.merge(root, widget, { sync: true });
 				assert.strictEqual(root.className, 'foo bar', 'should have added bar class');
@@ -2014,6 +2071,7 @@ jsdomDescribe('vdom', () => {
 						return nodes;
 					}
 				}
+
 				const widget = new Foo();
 				dom.merge(root, widget, { sync: true });
 				assert.lengthOf(root.childNodes, 1);
@@ -3317,14 +3375,17 @@ jsdomDescribe('vdom', () => {
 					this._extraNodes = !this._extraNodes;
 					this.invalidate();
 				};
+
 				constructor() {
 					super();
 					addExtraNodes = this.a;
 				}
+
 				render() {
 					return v('div', [w(A, { extra: this._extraNodes }), w(A, {})]);
 				}
 			}
+
 			const widget = new B();
 			const projection = dom.create(widget, { sync: true });
 			const root = projection.domNode.childNodes[0] as Element;
@@ -3369,14 +3430,17 @@ jsdomDescribe('vdom', () => {
 					this._extraNodes = !this._extraNodes;
 					this.invalidate();
 				};
+
 				constructor() {
 					super();
 					addExtraNodes = this.a;
 				}
+
 				render() {
 					return v('div', [w(C, {}), w(A, { extra: this._extraNodes }), w(C, {})]);
 				}
 			}
+
 			const widget = new B();
 			const projection = dom.create(widget, { sync: true });
 			const root = projection.domNode.childNodes[0] as Element;
@@ -3430,14 +3494,17 @@ jsdomDescribe('vdom', () => {
 					this._extraNodes = !this._extraNodes;
 					this.invalidate();
 				};
+
 				constructor() {
 					super();
 					addExtraNodes = this.a;
 				}
+
 				render() {
 					return v('div', [w(A, { extra: this._extraNodes }), w(C, {})]);
 				}
 			}
+
 			const widget = new B();
 			const projection = dom.create(widget, { sync: true });
 			const root = projection.domNode.childNodes[0] as Element;
@@ -3485,14 +3552,17 @@ jsdomDescribe('vdom', () => {
 					this._extraNodes = !this._extraNodes;
 					this.invalidate();
 				};
+
 				constructor() {
 					super();
 					addExtraNodes = this.a;
 				}
+
 				render() {
 					return v('div', [w(C, {}), w(A, { extra: this._extraNodes })]);
 				}
 			}
+
 			const widget = new B();
 			const projection = dom.create(widget, { sync: true });
 			const root = projection.domNode.childNodes[0] as Element;
@@ -3706,6 +3776,7 @@ jsdomDescribe('vdom', () => {
 			const button = root.childNodes[2] as HTMLButtonElement;
 			assert.strictEqual(select.value, 'bar', 'bar should be selected');
 			const onclickListener = spy();
+
 			class Foo extends WidgetBase {
 				render() {
 					return v(
@@ -3748,6 +3819,7 @@ jsdomDescribe('vdom', () => {
 					);
 				}
 			}
+
 			const widget = new Foo();
 			dom.merge(root, widget);
 			assert.strictEqual(root.className, 'foo bar', 'should have added bar class');
@@ -3795,6 +3867,7 @@ jsdomDescribe('vdom', () => {
 					];
 				}
 			}
+
 			class Foo extends WidgetBase {
 				render() {
 					return v(
@@ -3830,6 +3903,7 @@ jsdomDescribe('vdom', () => {
 					);
 				}
 			}
+
 			const widget = new Foo();
 			dom.merge(root, widget);
 			assert.strictEqual(root.className, 'foo bar', 'should have added bar class');
@@ -3889,6 +3963,7 @@ jsdomDescribe('vdom', () => {
 					];
 				}
 			}
+
 			class Foo extends WidgetBase {
 				render() {
 					return v(
@@ -3924,6 +3999,7 @@ jsdomDescribe('vdom', () => {
 					);
 				}
 			}
+
 			const widget = new Foo();
 			dom.merge(root, widget);
 			assert.strictEqual(root.className, 'foo bar', 'should have added bar class');
@@ -3971,6 +4047,7 @@ jsdomDescribe('vdom', () => {
 					]);
 				}
 			}
+
 			const widget = new Foo();
 			const projection = dom.merge(root, widget, { sync: true });
 			const projectionRoot = projection.domNode.childNodes[0] as Element;
@@ -4180,11 +4257,13 @@ jsdomDescribe('vdom', () => {
 
 			it('Should run enter animations when a widget is added', () => {
 				const transitionStrategy = { enter: stub(), exit: stub() };
+
 				class Child extends WidgetBase {
 					render() {
 						return v('div', { enterAnimation: 'enter' });
 					}
 				}
+
 				class Parent extends WidgetBase {
 					items = [w(Child, { key: '1' })];
 
@@ -4197,6 +4276,7 @@ jsdomDescribe('vdom', () => {
 						return v('div', [...this.items]);
 					}
 				}
+
 				const widget = new Parent();
 				const projection = dom.create(widget, {
 					transitions: transitionStrategy,
@@ -4221,11 +4301,13 @@ jsdomDescribe('vdom', () => {
 
 			it('Should run exit animations when a widget is removed', () => {
 				const transitionStrategy = { enter: stub(), exit: stub() };
+
 				class Child extends WidgetBase {
 					render() {
 						return v('div', { exitAnimation: 'exit' });
 					}
 				}
+
 				class Parent extends WidgetBase {
 					items = [w(Child, { key: '1' }), w(Child, { key: '2' })];
 
@@ -4238,6 +4320,7 @@ jsdomDescribe('vdom', () => {
 						return v('div', [...this.items]);
 					}
 				}
+
 				const widget = new Parent();
 				const projection = dom.create(widget, {
 					transitions: transitionStrategy,
@@ -4561,6 +4644,7 @@ jsdomDescribe('vdom', () => {
 				return v('span');
 			}
 		}
+
 		const widget = new MyWidget();
 		const projection = dom.create(widget, { sync: true });
 		const root = projection.domNode.childNodes[0] as HTMLElement;

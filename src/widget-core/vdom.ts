@@ -1035,6 +1035,11 @@ function addDeferredProperties(vnode: InternalVNode, projectionOptions: Projecti
 	const projectorState = projectorStateMap.get(projectionOptions.projectorInstance)!;
 	vnode.properties = { ...properties, ...vnode.decoratedDeferredProperties };
 	projectorState.deferredRenderCallbacks.push(() => {
+		if (!vnode.domNode) {
+			// if the dom node has been removed, we can bail out early
+			return;
+		}
+
 		const properties = {
 			...vnode.deferredPropertiesCallback!(!!vnode.inserted),
 			...vnode.decoratedDeferredProperties
