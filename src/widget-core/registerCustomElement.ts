@@ -40,7 +40,7 @@ export function DomToWidgetWrapper(domNode: HTMLElement): any {
 }
 
 const propertyMap: any = {
-	hasFocus: 'focus'
+	focus: 'hasFocus'
 };
 
 export function create(descriptor: any, WidgetConstructor: any): any {
@@ -76,10 +76,10 @@ export function create(descriptor: any, WidgetConstructor: any): any {
 
 			[...attributes, ...properties].forEach((propertyName: string) => {
 				const mappedPropertyName = propertyMap[propertyName] || propertyName;
-				const value = (this as any)[propertyName];
+				const value = (this as any)[mappedPropertyName];
 				const filteredPropertyName = mappedPropertyName.replace(/^on/, '__');
 				if (value !== undefined) {
-					this._properties[mappedPropertyName] = value;
+					this._properties[propertyName] = value;
 				}
 
 				if (filteredPropertyName !== propertyName) {
@@ -89,9 +89,9 @@ export function create(descriptor: any, WidgetConstructor: any): any {
 					};
 				}
 
-				domProperties[propertyName] = {
-					get: () => this._getProperty(mappedPropertyName),
-					set: (value: any) => this._setProperty(mappedPropertyName, value)
+				domProperties[mappedPropertyName] = {
+					get: () => this._getProperty(propertyName),
+					set: (value: any) => this._setProperty(propertyName, value)
 				};
 			});
 
