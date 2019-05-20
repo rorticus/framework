@@ -39,6 +39,10 @@ export function DomToWidgetWrapper(domNode: HTMLElement): any {
 	return DomToWidgetWrapper;
 }
 
+const propertyMap: any = {
+	hasFocus: 'focus'
+};
+
 export function create(descriptor: any, WidgetConstructor: any): any {
 	const {
 		attributes = [],
@@ -48,8 +52,9 @@ export function create(descriptor: any, WidgetConstructor: any): any {
 	const attributeMap: any = {};
 
 	attributes.forEach((propertyName: string) => {
-		const attributeName = propertyName.toLowerCase();
-		attributeMap[attributeName] = propertyName;
+		const mappedPropertyName = propertyMap[propertyName] || propertyName;
+		const attributeName = mappedPropertyName.toLowerCase();
+		attributeMap[attributeName] = mappedPropertyName;
 	});
 
 	return class extends HTMLElement {
@@ -70,22 +75,23 @@ export function create(descriptor: any, WidgetConstructor: any): any {
 			this._properties = { ...this._properties, ...this._attributesToProperties(attributes) };
 
 			[...attributes, ...properties].forEach((propertyName: string) => {
+				const mappedPropertyName = propertyMap[propertyName] || propertyName;
 				const value = (this as any)[propertyName];
-				const filteredPropertyName = propertyName.replace(/^on/, '__');
+				const filteredPropertyName = mappedPropertyName.replace(/^on/, '__');
 				if (value !== undefined) {
-					this._properties[propertyName] = value;
+					this._properties[mappedPropertyName] = value;
 				}
 
 				if (filteredPropertyName !== propertyName) {
 					domProperties[filteredPropertyName] = {
-						get: () => this._getProperty(propertyName),
-						set: (value: any) => this._setProperty(propertyName, value)
+						get: () => this._getProperty(mappedPropertyName),
+						set: (value: any) => this._setProperty(mappedPropertyName, value)
 					};
 				}
 
 				domProperties[propertyName] = {
-					get: () => this._getProperty(propertyName),
-					set: (value: any) => this._setProperty(propertyName, value)
+					get: () => this._getProperty(mappedPropertyName),
+					set: (value: any) => this._setProperty(mappedPropertyName, value)
 				};
 			});
 
